@@ -1,0 +1,1 @@
+[{"model": "orders.order", "pk": 1, "fields": {"user": 1, "created": "2020-08-28T10:53:54.834Z", "state": "new"}}, {"model": "orders.orderitem", "pk": 1, "fields": {"order": 1, "product": 1, "price": "10000.00", "quantity": 1}}]
