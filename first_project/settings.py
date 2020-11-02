@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'shop',
     'orders',
     'users',
@@ -105,6 +106,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'dshariko@britishdesign.ru'
+EMAIL_HOST_PASSWORD = 'ganesh098'
+EMAIL_PORT = 587
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -127,3 +133,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+FIXTURE_DIRS = (
+   '/shop/fixtures/',
+   '/orders/fixtures/',
+)

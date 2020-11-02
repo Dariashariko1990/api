@@ -2,3 +2,5 @@ Django==2.2.10
 
 djangorestframework~=3.11.1
 pytils~=0.3
+requests~=2.24.0
+PyYAML~=5.3.1

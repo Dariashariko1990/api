@@ -1,11 +1,14 @@
 from django.db import models
+from users.models import User
 
 
-# Create your models here.
 class Shop(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название')
     url = models.URLField(verbose_name='Ссылка на прайс для импорта товаров', null=True, blank=True)
     state = models.BooleanField(verbose_name='Статус получения заказов', default=True)
+    user = models.OneToOneField(User, verbose_name='Пользователь', related_name='shop',
+                                blank=True, null=True,
+                                on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Магазин'
@@ -39,8 +42,6 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField(verbose_name='Количество')
     shop = models.ForeignKey(Shop, verbose_name='Магазин', related_name='products', blank=True,
                              on_delete=models.CASCADE)
-
-    # parametrs =
 
     class Meta:
         verbose_name = 'Товар'
