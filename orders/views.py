@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.db import IntegrityError
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Count, Sum, F, FloatField
+from django.http import Http404
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,6 +10,7 @@ from orders.models import Order
 from orders.serializers import OrderSerializer
 from users.models import User, Address, Phone
 from users.serializers import AddressSerializer, AddressEditSerializer, PhoneSerializer
+from rest_framework import viewsets, status
 
 
 class OrdersView(APIView):
@@ -21,17 +23,21 @@ class OrdersView(APIView):
         shop_id = request.query_params.get('shop_id')
 
         if order_id:
-            queryset = get_object_or_404(Order, pk=order_id)
+            queryset = Order.objects.filter(pk=order_id).prefetch_related('items').annotate(
+                total_cost=Sum(F('items__price') * F("items__quantity"), output_field=FloatField()))
 
-        if user_id:
+        elif user_id:
             user = User.objects.get(pk=user_id)
-            queryset = Order.objects.filter(user=user)
+            queryset = Order.objects.filter(user=user).prefetch_related('items').annotate(
+                total_cost=Sum(F('items__price') * F("items__quantity"), output_field=FloatField()))
 
-        if shop_id:
-            queryset = Order.objects.filter(items__product__shop=shop_id)
+        elif shop_id:
+            queryset = Order.objects.filter(items__product__shop=shop_id).prefetch_related('items').annotate(
+                total_cost=Sum(F('items__price') * F("items__quantity"), output_field=FloatField()))
 
         else:
-            queryset = Order.objects.all().prefetch_related('items')
+            queryset = Order.objects.all().prefetch_related('items').annotate(
+                total_cost=Sum(F('items__price') * F("items__quantity"), output_field=FloatField()))
 
         serializer = OrderSerializer(queryset, many=True)
 
@@ -73,7 +79,7 @@ class ContactView(APIView):
     # получить контакты залогиненного пользователя
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return Response({'Status': False, 'Error': 'Log in required'}, status=403)
+            return Response({'Status': False, 'Error': 'Log in required'}, status=401)
 
         contact = Address.objects.filter(
             user_id=request.user.id)
@@ -199,3 +205,13 @@ class PhoneView(APIView):
             return Response({'Status': False, 'Errors': str(error)})
 
         return Response({'Status': True})
+
+
+# Использование viewsets вместо views
+class PhoneViewSet(viewsets.ModelViewSet):
+    """ Класс для работы с телефоном покупателей """
+    serializer_class = PhoneSerializer
+
+    # Переопределяем для работы с телефонами только залогиненного пользователя
+    def get_queryset(self):
+        return self.request.user.phone_number.all()

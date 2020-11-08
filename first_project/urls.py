@@ -18,8 +18,14 @@ from django.urls import path, include
 
 from orders.views import OrdersView, ContactView, PhoneView
 from shop.views import CategoryView, ShopView, ProductView, CartView
+from orders.views import PhoneViewSet
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'orders/phone', PhoneViewSet, basename='phone')
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('admin/', admin.site.urls),
     path('categories/', CategoryView.as_view(), name='categories'),
     path('shops/', ShopView.as_view(), name='shops'),
@@ -27,7 +33,7 @@ urlpatterns = [
     path('orders/', OrdersView.as_view(), name='orders'),
     path('cart/', CartView.as_view(), name='cart'),
     path('address/', ContactView.as_view(), name='address'),
-    path('phone/', PhoneView.as_view(), name='phone'),
+    #path('phone/', PhoneView.as_view(), name='phone'),
     path('users/', include('users.urls')),
     path('partners/', include('partners.urls')),
 ]

@@ -34,8 +34,10 @@ class OrderItemEditSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemReadSerializer(read_only=True, many=True)
+    total_cost = serializers.IntegerField(
+        read_only=True)
 
     class Meta:
         model = Order
-        fields = ('id', 'user', 'created', 'state', 'items', 'get_total_cost')
+        fields = ('id', 'user', 'created', 'state', 'items', 'total_cost')
         read_only_fields = ('id',)
